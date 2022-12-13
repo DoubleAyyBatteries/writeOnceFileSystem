@@ -29,8 +29,14 @@ int wo_mount(char *filename, void *memoryAddress)
     struct stat buffer;
     if (stat(filename, &buffer) == 0)
     {
-
-        printf("Size = %ld\n", buffer.st_size);
+        if(buffer.st_size == 0){
+            printf("Check 1: Size = 0\n");
+            //build from scratch
+        }
+        else if(buffer.st_size > 0){
+            printf("Check 2: Size = %ld\n", buffer.st_size);
+            //read file to see where to add and check for errors
+        }
         return -1;
     }
 
