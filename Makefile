@@ -1,4 +1,4 @@
-TARGET = writeoneFS
+TARGET = writeonceFS
 CC     = gcc
 CFLAGS = -g -Wall -Wvla -fsanitize=address
 
