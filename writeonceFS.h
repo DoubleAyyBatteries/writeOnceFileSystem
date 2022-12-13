@@ -5,6 +5,9 @@
 #include <assert.h>
 #include <time.h>
 #include <sys/time.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+#include <unistd.h>
 
 #define default_size 4194304
 
