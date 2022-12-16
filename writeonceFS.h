@@ -19,14 +19,13 @@
 
 typedef struct fileblock
 {
-    char filename[128];
+    FILE fb;
     int fd;        // file descriptor
     int allperm;   // all permissions
     int groupperm; // group permissions
     int usrperm;   // all permissions
 
     size_t dataSize; // internal data size. Always >= user specified data size
-    void *data;
     // struct fileblock next;
 } fb;
 
