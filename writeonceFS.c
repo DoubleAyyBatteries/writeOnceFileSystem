@@ -63,10 +63,11 @@ int wo_mount(char *filename, void *memoryAddress)
     struct stat buffer;
     if (stat(filename, &buffer) == 0)
     {
+        char filedata[default_size];
+        fgets(filedata, sizeof(filedata), fptr);
         if (buffer.st_size == 0)
         {
             printf("Check 1: Size = 0\n");
-            // initialize(&filename);
             char *cma = (char *)memoryAddress;
             // printf("size of memadd = %ld\n", sizeof(*memoryAddress));
 
@@ -92,13 +93,13 @@ int wo_mount(char *filename, void *memoryAddress)
         {
             printf("Check 2: Size = %ld\n", buffer.st_size);
             // read file to see where to add and check for errors
-            if (sizeof(head) > buffer.st_size)
+            if (sizeof(*head) > buffer.st_size)
             {
                 printf("Error Parsing FIle: Data size too small\n");
                 return -1;
             }
-            char *cma = (char *)memoryAddress;
-            head = (fb *)&cma[0];
+            // char *cma = (char *)memoryAddress;
+            head = (fb *)&filedata[0];
             fb *temp = head;
 
             signal(SIGSEGV, handler);
@@ -106,14 +107,21 @@ int wo_mount(char *filename, void *memoryAddress)
             int currSize = 0;
             while (currSize < default_size)
             {
+                if(strcmp(temp->filename, "") == 0){
+                    printf("Error Parsing File: Empty Filename\n");
+                    // break;
+                    return -1;
+                }
                 if (temp->usrperm < 0 || temp->usrperm > 7 || temp->groupperm < 0 || temp->groupperm > 7 || temp->allperm < 0 || temp->allperm > 7)
                 {
                     printf("Error Parsing File: Permissions Invalid\n");
+                    // break;
                     return -1;
                 }
                 if (temp->dataSize < 0 || temp->dataSize > default_size)
                 {
                     printf("Error Parsing File: Data Size Cannot be negative or greater than 4MB\n");
+                    // break;
                     return -1;
                 }
 
@@ -127,6 +135,7 @@ int wo_mount(char *filename, void *memoryAddress)
                 // printf("Assigning currSize\n");
                 currSize += sizeof(*temp) + temp->dataSize;
                 printf("Block %d: FN = %s, Perm = %d%d%d, Datasize = %ld\n", x, temp->filename, temp->usrperm, temp->groupperm, temp->allperm, temp->dataSize);
+
                 temp = next(temp);
             }
 
@@ -135,6 +144,11 @@ int wo_mount(char *filename, void *memoryAddress)
             // {
             //     return -1;
             // }
+            memcpy(memoryAddress, filedata, sizeof(filedata));
+            char *cma = (char *)memoryAddress;
+            head = (fb *)&cma[0];
+
+            printf("Head: FN = %s, Perm = %d%d%d, Datasize = %ld\n", head->filename, head->usrperm, head->groupperm, head->allperm, head->dataSize);
         }
     }
     return 0;
